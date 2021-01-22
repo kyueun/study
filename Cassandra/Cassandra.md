@@ -28,6 +28,32 @@
 
 **Materialized view**: 기본 table의 변형 table을 생성하면서 partition key에 queried column을 포함하는 cluster-wide indexing(secondary index는 제외), 모든 노드를 탐색하지 않고도 indexed data 탐색을 가능하게 함
 
+**Gossip**: 한 cluster 내부의 node들 간의 내부 통신 protocol, peer-to-peer communication protocol, 매 초마다 최대 3개의 node와 통신하며 상태 메세지 교환, TCP 3-way handshake와 비슷
+
+​	![](img/gossip_2.jpeg)
+
+- **SYN**: round of gossip을 시작하는 node(=initiator)가 peer node들에게 보내는 메세지, cluster 내 node들의 ip, generation, heartbeat version 내용 포함
+- **ACK**: SYN 받은 node가 본인의 metadata 정보와 SYN 내의 내용 비교해서 initiator에게 보내는 메세지, 본인의 updated metadata 정보와 본인이 갖고있지 않은 digest of nodes 내용 포함
+- **ACK2**: initiator가 각 node가 갖고있지 않은 metadata 정보를 peer node들에게 보내는 메세지, initiator는 ACK에서 받은 각 node의 metadata 정보로 본인의 metadata 정보 update하고, peer node들은 ACK2에서 받은 metadata 정보로 update
+
+**Thrift**: 이진 통신 protocol
+
+**Rack**: a grouped set of servers, 중복 데이터가 하나의 rack에 쌓이지 않고 여러 rack에 퍼지게 해서 한 rack이 down되는 경우를 대비, 한 datacenter 안에 여러 rack, 여러 server, 데이터가 하나의 rack에만 갈지 여러 rack에 갈지 결정하는 건 snitch
+
+**Snitch**: 어떤 node가 어떤 datacenter의 어떤 rack에 있을지 결정
+
+- SimpleSnitch: 근접성에 따라 결정, single-datacenter deployment의 경우 우선적으로 사용
+- Dynamic Snitching: read latency 모니터해서 read가 느려지지 않도록
+- RackInferringSnitch: 근접성을 각 노드 ip 주소의 2, 3번째 octet에 의해 결정, snitch class를 직접 custom할 때 사용
+
+**Datacenter**: a group of nodes, datacenter가 하나인 경우, node type도 하나만 선택 가능
+
+- transactional: standard
+- datastax enterprise graph: graph DB
+- datastax enterprise analytics: integration with apache spark
+- datastax enterprise search: integration with apache solr
+- datastax enterprise search analytics: search queries with analytics jobs
+
 
 
 # Data Modeling
@@ -40,13 +66,21 @@
 
 **REDUCE THE NUMBER OF PARTITION READS**
 
-
-
 # Data partitionaing & Denormalization
 
 ![cassandra-performance-2](img/cassandra-performance-2.png)
 
 ### process
+
+데이터를 분산시킬 때, Cassandra는 **consistent hashing**을 사용하면서 데이터 복제와 파티셔닝을 시행
+
+##### data replication
+
+data 입력  --> partitioner가 data의 primary key를 hash value로 변환(ex. 15) --> look up token ring --> hash value보다 큰 token을 가진 첫번째 node에 data 저장 --> replication factor에 맞게 남은 개수만큼 다른 node들(첫번째 node와 물리적으로 가까운 node들)에 저장
+
+##### denormalization
+
+하나의 table에 대한 여러가지 버전 생성 --> 다양한 read requests에 최적화
 
 **consistent hashing**을 사용
 
@@ -76,7 +110,7 @@ cluster performance는 **linearly scalable**: node 숫자를 2배하면 1. 각 t
 
 # Write
 
-![cassandra-performance-3](img/cassandra-performance-3.png)
+![cassandra-performance-3](img/cassandra-performance-3_2.png)
 
 ### process
 
@@ -112,7 +146,7 @@ commit log --> node가 down되더라도 모든 lost in-cache writes 복구 가�
 
 # Read
 
-![](img/cassandra-performance-4.png)
+![](img/cassandra-performance-4_2.png)
 
 ### process
 
@@ -177,4 +211,3 @@ SASI: full text search에 유용
 
 1. data consistency issue
 2. indexing is far from perfect
-
