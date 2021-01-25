@@ -54,6 +54,10 @@
 - datastax enterprise search: integration with apache solr
 - datastax enterprise search analytics: search queries with analytics jobs
 
+**Snapshot**: 모든 on-disk data file(SSTable files)에 대한 snapshot 생성해서 data directory에 백업, snapshot 단위는 모든 keyspace일수도 있고, 하나의 keyspace, 하나의 table일 수도 있음, parallel ssh tool 사용하면 모든 cluster에 대한 snapshot 생성 가능
+
+**CDC**(Change Data Capture): table이 CDC log에 선언된 size-on-disk에 도달하면 해당 table에 write를 거부하고 보관하기 위해 flag 생성하는 메커니즘
+
 
 
 # Data Modeling
