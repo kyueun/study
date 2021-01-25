@@ -128,3 +128,95 @@
 ​	default: materialized view write 제한
 
 ​	materialized view write 시 read 필요 -> concurrent read나 concurrent write보다 작게 설정
+
+`incremental_backups`
+
+​	default: false
+
+​	마지막 snapshot이 생성된 이후의 data 복구
+
+​	memtable에서 flush되거나 stream된 SSTable과 keyspace data의 backups 디렉토리 hard link
+
+​	모든 snapshot 전달하지 않고도 외부에 backups 저장 가능
+
+​	snapshot과 합쳐져서 dependable, up-to-date backup mechanism 가능
+
+`snapshot_before_compaction`
+
+​	default: false
+
+​	compaction 전에 snapshot 생성
+
+​	옛날 snapshot 자동적으로 삭제되지는 않음
+
+`phi_convict_threshold`
+
+​	default: 8
+
+​	sensitivity of failure detector를 지수 승으로 조절
+
+​	일반적으로 조절할 필요 없음
+
+​	EC2에서는 network congestion이 자주 발생해서 10이나 12정도로 올려도 괜찮음
+
+`commitlog_sync`
+
+​	write 인지하는 시간(millisecond)
+
+- periodic(default): commit log가 disk와 동기화되는 주기 관리, 동기화 즉시 진행
+  - commitlog_sync_period_in_ms(default: 10000ms=10s)
+- batch: 동기화 진행하기 전에 다른 writes 얼마나 기다릴지 관리, disk에 fsync되기 전에는 write 인지 못함
+  - commitlog_sync_batch_window_in_ms(default: 2ms)
+
+`commitlog_segment_size_in_mb`
+
+​	default: 32
+
+​	commitlog file segment 하나의 크기
+
+​	commitlog segment는 SSTable로 flush되고 난 후 저장, 삭제, 재활용될 수 있음
+
+​	시스템 내 모든 table의 commitlog segment에 관한 것
+
+​	default가 적절하지만 더 세밀하게 나누고 싶으면 8이나 16으로 변경 가능
+
+`max_mutation_size_in_kb`
+
+​	default: 1/2 of commitlog_segment_size_of_mb
+
+​	mutation의 크기가 이 값보다 크면, mutation reject
+
+​	만약 mutation reject되면 commitlog_segment_size_in_mb를 바꾸지 말고 원인 찾아서 그걸 바꿔야함
+
+​	명시적으로 값 바꾸고 싶으면 default는 넘지 않도록 
+
+`commitlog_compression`
+
+​	commit log compress시 사용할 compressor
+
+- not enabled(default)
+- LZ4
+- Snappy
+- Deflate(zlib)
+
+`cdc_total_space_in_mb`
+
+​	default: 4096MB + 1/8 of the total space of the drive where the cdc_raw_directory resides
+
+​	space가 해당 값 이상으로 넘어가면 mutations, DCD enabled된 table에 WriteTimeoutException 발생
+
+​	CDCCompactor(consumer)가 raw DBD log를 parsing하고 parsing이 끝나면 삭제
+
+`commitlog_total_space_in_mb`
+
+​	default: 8192 for 64-bit JVMs
+
+​	commitlog에 쓰이는 total space
+
+​	total space가 해당 값 이상으로 넘어가면 다음으로 가까운 segment multiple로 반올림하고 memtable을 가장 오래된 commitlog segment에 flush하고, 오래된 log segment는 commitlog에서 삭제
+
+​	시작 시 재생할 데이터 양이 줄고 자주 update되지 않는 table이 commitlog segment를 점거하지 않도록함
+
+​	값이 작을수록 less-active table에 대해 더 많은 flush
+
+​	적은 데이터에 많은 update가 발생하거나 steady stream write일 때 memtable threshold 증가시키면 좋음
