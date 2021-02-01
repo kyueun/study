@@ -220,3 +220,137 @@
 ​	값이 작을수록 less-active table에 대해 더 많은 flush
 
 ​	적은 데이터에 많은 update가 발생하거나 steady stream write일 때 memtable threshold 증가시키면 좋음
+
+`concurrent_compactors`
+
+​	default: smaller of number of disks of number of cores minimum 2 to maximum 8 per CPU core
+
+​	한 node 내에서 anti-entropy repair 위한 validation compaction 제외하고 동시에 concurrent compaction processes 진행 가능
+
+​	single long-running compaction 동안 축적되는 작은 SSTable의 수를 제한해서 read/write가 섞인 workload에서도 read performance 보장
+
+`sstable_preemptive_open_interval_in_mb`
+
+​	default: 50MB
+
+​	compaction process는 SSTable이 완전히 written될 때까지 열어서 이미 written된 이전의 SSTable들 대신 사용
+
+​	page cache 건드리는걸 줄이고 최신 row를 최신의 상태로 유지해서 SSTable 간 read 전달을 원활하게
+
+`memtable_allocation_type`
+
+​	default: heap_buffers
+
+​	memtable memory memory 할당, 관리하는 방법
+
+​	현재 버전에서는 heap_buffers만 가능
+
+`memtable_cleanup_threshold`
+
+​	default: 1/(memtable_flush_writers+1)
+
+​	자동 memtable flush에 사용되는 비율
+
+​	non-flushing memtable의 memory가 (memtable_heap_space_in_mb + memtable_offheap_size_in_mb) * memtable_cleanup_threshold 만큼의 메모리를 넘으면 제일 큰 memtable을 disk로 flush
+
+​	이 값이 커지면 큰 flush를 덜 자주 시행하고, compaction을 덜 하며, concurrent flush도 덜 한다 -> heavy write load에는 맞지 않음
+
+`file_cache_size_in_mb`
+
+​	default: smaller of 1/4 heap and 512
+
+​	SSTable-reading buffer의 메모리 크기
+
+`buffer_pool_use_heap_if_exhausted`
+
+​	default: true
+
+​	SSTable buffer pool이 다 찼을 때(buffer pool이 file_cache_size_in_mb에 다다랐을 때) on-heap이나 off-heap에 할당하는 걸 허용하는지
+
+​	buffer 캐싱을 멈추고 request마다 할당
+
+`memtable_flush_writers`
+
+​	default: smaller of number of disks or number of cores minimum 2 to maximum 8
+
+​	memtable flush writer thread의 수
+
+​	thread들은 disk I/O에 의해 block
+
+​	thread 각각은 block돼있는 동안 memory에 있는 memtable을 하나씩 들고 있음
+
+​	data directory들이 SSD에 backup되면 number of cores로 해당 값 변경
+
+`column_index_size_in_kb`
+
+​	default: 64
+
+​	한 partition 안에서 row들의 index
+
+​	row가 크면 이 값을 줄여서 seek time 줄이기
+
+​	너무 크게 하면 key cache가 넘침
+
+​	row size가 확실하지 않으면 default 유지
+
+`index_summary_capacity_in_mb`
+
+​	default: 5% of the heap size empty
+
+​	SSTable index summary의 memory pool size
+
+​	index summary의 memory가 이 값을 넘으면 잘 안 읽는 SSTable의 index summary를 줄여서 이 값에 맞게 조정
+
+​	극한의 상황에서는 이 값보다 더 많이 사용할 수도 있음
+
+`index_summary_resize_interval_in_minutes`
+
+​	default: 60 minutes
+
+​	index summary가 re-sample되는 주기
+
+​	re-sampling을 하면 fixed-size pool에서 최근 읽힌 비율에 맞게 SSTable로 메모리를 재분배
+
+​	-1로 하면 disable -> 존재하는 index summary들은 현재 상태로 유지
+
+`stream_throughout_outbound_megabits_per_sec`
+
+​	default: 200Mbps
+
+​	node간의 모든 outbound streaming file transfer 동안의 throttle
+
+​	streaming data가 bootstrap이나 repair 할 때 가장 sequential한 I/O
+
+​	network connection을 포화시킬 수 있고 client(RPC) performance 낮출 수 있음
+
+`inter_dc_stream_throughout_outbound_megabits`
+
+​	default: unset
+
+​	datacenter간의 모든 streaming file transfer나 stream_throughout_outbound_megabits_per_sec에서 정의된 network stream traffic의 throttle
+
+`trickle_fsync`
+
+​	default: false
+
+​	true일 경우, dirty buffer를 trickle_fsync_interval_in_kb만큼씩 나눠 OS가 flush하도록 해서 fsync
+
+​	read latency에 영향을 주는 갑작스런 dirty buffer flushing을 예방
+
+​	SSD를 사용하면 추천, HDD면 비추천
+
+`trickle_fsync_interval_in_kb`
+
+​	default: 10240
+
+​	fsync의 크기
+
+`windows_timer_interval`
+
+​	default: 1
+
+​	default windows kernel timer and scheduling resolution은 15.6ms -> power conservation
+
+​	이 값 낮추면 더 작은 latency, 좋은 throughout 보장
+
+​	virtualized environments에서는 안좋은 performance impact 있을 수 있음
