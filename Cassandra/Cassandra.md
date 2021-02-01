@@ -31,7 +31,6 @@
 **Gossip**: 한 cluster 내부의 node들 간의 내부 통신 protocol, peer-to-peer communication protocol, 매 초마다 최대 3개의 node와 통신하며 상태 메세지 교환, TCP 3-way handshake와 비슷
 
 ​	![](img/gossip_2.jpeg)
-
 - **SYN**: round of gossip을 시작하는 node(=initiator)가 peer node들에게 보내는 메세지, cluster 내 node들의 ip, generation, heartbeat version 내용 포함
 - **ACK**: SYN 받은 node가 본인의 metadata 정보와 SYN 내의 내용 비교해서 initiator에게 보내는 메세지, 본인의 updated metadata 정보와 본인이 갖고있지 않은 digest of nodes 내용 포함
 - **ACK2**: initiator가 각 node가 갖고있지 않은 metadata 정보를 peer node들에게 보내는 메세지, initiator는 ACK에서 받은 각 node의 metadata 정보로 본인의 metadata 정보 update하고, peer node들은 ACK2에서 받은 metadata 정보로 update
@@ -57,6 +56,9 @@
 **Snapshot**: 모든 on-disk data file(SSTable files)에 대한 snapshot 생성해서 data directory에 백업, snapshot 단위는 모든 keyspace일수도 있고, 하나의 keyspace, 하나의 table일 수도 있음, parallel ssh tool 사용하면 모든 cluster에 대한 snapshot 생성 가능
 
 **CDC**(Change Data Capture): table이 CDC log에 선언된 size-on-disk에 도달하면 해당 table에 write를 거부하고 보관하기 위해 flag 생성하는 메커니즘
+
+**anti-entropy**: 최신 data를 보장하기 위해 node에서 하는 replica data의 synchronization
+
 
 
 
