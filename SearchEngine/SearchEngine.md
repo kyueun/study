@@ -8,17 +8,20 @@
 
 #### 참고사이트
 
-https://ingeniouslab.co.kr/how-search-engines-work/
+##### 검색엔진 원리
 
-[https://improveyourank.com/%EA%B5%AC%EA%B8%80-%EA%B2%80%EC%83%89-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98%EC%9D%80-%EB%AC%B4%EC%97%87%EC%9D%BC%EA%B9%8C/](https://improveyourank.com/구글-검색-알고리즘은-무엇일까/)
+1. https://ingeniouslab.co.kr/how-search-engines-work/
+2. [https://improveyourank.com/%EA%B5%AC%EA%B8%80-%EA%B2%80%EC%83%89-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98%EC%9D%80-%EB%AC%B4%EC%97%87%EC%9D%BC%EA%B9%8C/](https://improveyourank.com/구글-검색-알고리즘은-무엇일까/)
+3. [https://www.seenbuy.kr/%EA%B5%AC%EA%B8%80-%EA%B2%80%EC%83%89%EC%9D%98-%EC%9B%90%EB%A6%AC-%EA%B2%80%EC%83%89-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98/#sthash.fKxTU7cO.dpbs](https://www.seenbuy.kr/구글-검색의-원리-검색-알고리즘/#sthash.fKxTU7cO.dpbs)
+4. http://www.zinicap.kr/archives/5273
 
-[https://www.seenbuy.kr/%EA%B5%AC%EA%B8%80-%EA%B2%80%EC%83%89%EC%9D%98-%EC%9B%90%EB%A6%AC-%EA%B2%80%EC%83%89-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98/#sthash.fKxTU7cO.dpbs](https://www.seenbuy.kr/구글-검색의-원리-검색-알고리즘/#sthash.fKxTU7cO.dpbs)
+##### 오픈소스
 
-http://www.zinicap.kr/archives/5273
+1. https://cyberx.tistory.com/203
+2. https://cyberx.tistory.com/204
 
-https://cyberx.tistory.com/203
-
-https://cyberx.tistory.com/204
+3. Sphinx: https://crosslifekr.tistory.com/7
+4. ElasticSearch, Solr, Sphinx: https://greenice.net/elasticsearch-vs-solr-vs-sphinx-best-open-source-search-platform-comparison/
 
 ------
 
@@ -35,6 +38,7 @@ https://cyberx.tistory.com/204
 2. Apache Solr: Lucene 기반 다양한 기능 포함된 오픈소스 검색엔진 솔루션, 웹 기반, 기본 UI제공, 독립적인 서버로 구현되어 있음, 문서 원문 검색 등 장문 데이터 검색에 용이, 색인 시 전체 데이터 수정
 3. ElasticSearch: Lucene 기반 다양한 기능 포함된 오픈소스 검색엔진 솔루션, 웹 기반, 기본 UI 제공, 독립적인 서버로 구현되어 있음, 상품 검색, 이상징후 감지 및 모니터링 등 검색, 색인 속도가 빨라야 할 때 용이, 색인 시 수정된 데이터만을 수정
 4. Apache Nutch:  Lucene 기반 웹 크롤러 솔루션, 수집, 색인, 검색 독립적으로 가능, UI 제공 X, 주로 웹 페이지 크롤링 목적
+5. Sphinx: 
 
 
 
@@ -80,6 +84,16 @@ https://cyberx.tistory.com/204
       
 
 3. **검색**
+
+   1. full-text search
+   2. multifield search
+   3. highlighting
+   4. search by synonyms
+   5. autocomplete suggestions
+   6. faceted search
+   7. fuzzy search: 문자열 간 거리
+   8. spelling corrections: N-그램 같은..
+   9. geospatial search
 
 
 
