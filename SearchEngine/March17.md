@@ -95,20 +95,48 @@ Kakao Hangul Analyzer III
 
 #### 음절 기반 모델
 
+음절에서 분리된 형태소를 정렬하고, 태그로부터 다시 원형을 복원
+
 왜 음절 기반으로 했을까?
 
-- 한국어는 원형 복원, 불규칙 활용 등의 이유로 입력과는 형태와 길이가 다른 경우가 많음
+- 기존 영어와 같은 굴절어 기반 POS tagging은 규칙 기반보다는 어휘 확률, 문맥 확률을 이용한 확률 모델 기반 접근 방법 주로 사용
+- 확률 모델 기반 접근 방법을 한국어에 적용하면 자료 부족 문제가 발생
+  - 교착어인 한국어는 체언과 용언이 조사, 어미와 결합되어 띄어쓰기 단위인 어절 형성 -> 어절 단위로 품사 태깅
+  - 하나의 체언이나 용언으로부터 수많은 어절이 생성 ex. 가다, 가는, 가고, 가면서... 등의 어절들이 모두 다르게 분류됨
 
-- 음절에서 분리된 형태소를 정렬하고, 태그로부터 다시 원형을 복원
+왜 원형으로 복원할까?
+
+- 자료가 충분히 많더라도 원형 복원의 문제가 발생
+  - 영어의 경우 'countries'에 명사의 복수형임을 나타내는 NNS라는 태그를 부착하지만 기본형인 country로 바꾸지는 않음
+  - 한국어의 경우 '가는' 의 원형이 '가다' 인지 '갈다' 인지 구분해야 할 필요가 있음
+  - khaiii 음절 원형 복원 시 참고한 논문 - http://kiise.or.kr/e_journal/2013/3/SA/pdf/06.pdf
+
+- 원형 복원 후의 결과가 입력과는 형태와 길이가 다른 경우 태그를 통해 나타냄
+
+  ![](img/tag.png)
 
   <img src="img/origin.png" style="zoom:75%;" />
 
   - 단순 태그: 한 음절에서 여러 형태소로 분리되지 않은 경우 한 음절이 하나의 태그만 가짐
   - 복합 태그: 한 음절에서 여러 형태소로 분리된 경우 한 음절이 여러 개의 태그를 가짐
-  - 태그는 IOB1 방식으로 표현 - https://www.aclweb.org/anthology/E99-1023.pdf
-    - khaiii 품사 태깅 시 참고한 논문
-  - 음절 단위 한국어 품사 태깅에서 원형 복원 - http://kiise.or.kr/e_journal/2013/3/SA/pdf/06.pdf
-    - khaiii 음절 원형 복원 시 참고한 논문
+
+- 형태소 분석 결과와 품사 태그 결과 간의 관계 표현을 위해 IOB1 방식 선택
+
+  - 태깅
+
+    - IOB1: baseNP(Noun Phrase) 내부는 I, baseNP 외부는 O, 다른 baseNP에서 바로 이어지는 baseNP의 첫 단어는 B
+    - IOB2: 모든 baseNP의 첫 단어는 B, baseNP의 첫 단어를 제외한 내부는 I, baseNP 외부는 O
+    - IOE1: baseNP 내부는 I, baseNP 외부는 O, 다른 baseNP로 바로 이어지는 baseNP의 마지막 단어는 E
+    - IOE2: 모든 baseNP의 마지막 단어는 E, baseNP의 마지막 단어를 제외한 내부는 I, baseNP 외부는 O
+    - [+] : baseNP 중 첫 단어가 [ 태그를 받고, 마지막 단어가 ] 태그를 받은 것만을 어순으로 간주
+    - [+IO : IO 포맷에서 I 태그와 [ 태그를 받은 단어를 B로 변환, 결과는 IOB2 방식으로 해석 가능
+    - IO+] : IO 포맷에서 I 태그와 ] 태그를 받은 단어를 E로 변환, 결과는 IOE2 방식으로 해석 가능
+
+  - khaiii 태깅 시 참고한 논문 - https://www.aclweb.org/anthology/E99-1023.pdf
+
+    - 실험 결과 IOB1이 모든 경우에 고르게 높음
+
+      ![](img/iob1.png)
 
 
 
@@ -132,20 +160,20 @@ Kakao Hangul Analyzer III
 
     <img src="img/fscore.png" style="zoom:48%;" />
 
-    - 정확률: 예측 Positive 중 True의 비율 
+    - 정확률: 예측 Positive 중 True의 비율
       $$
       \frac{TP}{FP+TP}
       $$
       
-
+- 
     
 
+    
     - 재현율: 실제 Positive 중 True의 비율
       $$
       \frac{TP}{FN+TP}
       $$
-      
-
+  
     - F-Score
       $$
       \frac{TP}{\frac{1}{2}(FP+FN)+TP}
