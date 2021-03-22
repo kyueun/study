@@ -120,7 +120,7 @@ Kakao Hangul Analyzer III
   - 단순 태그: 한 음절에서 여러 형태소로 분리되지 않은 경우 한 음절이 하나의 태그만 가짐
   - 복합 태그: 한 음절에서 여러 형태소로 분리된 경우 한 음절이 여러 개의 태그를 가짐
 
-- 형태소 분석 결과와 품사 태그 결과 간의 관계 표현을 위해 IOB1 방식 선택
+- 형태소 분석 결과와 음절 간의 관계 표현을 위해 IOB1 방식 선택
 
   - 태깅
 
@@ -151,32 +151,31 @@ Kakao Hangul Analyzer III
 
 - F-Score: 정확률과 재현율의 조화 평균값
 
-  - 조화 평균(harmonic mean): 역수의 차원에서 평균을 구하고, 다시 역수를 취해 원래 차원으로 돌아오는 것
-    $$
-    x = \frac{2ab}{a+b}
-    $$
 
-  - F-Score
+- 조화 평균(harmonic mean): 역수의 차원에서 평균을 구하고, 다시 역수를 취해 원래 차원으로 돌아오는 것
+  $$
+  x = \frac{2ab}{a+b}
+  $$
 
-    <img src="img/fscore.png" style="zoom:48%;" />
+- F-Score
 
-    - 정확률: 예측 Positive 중 True의 비율
-      $$
-      \frac{TP}{FP+TP}
-      $$
-      
-- 
-    
+  <img src="img/fscore.png" style="zoom:48%;" />
 
-    
-    - 재현율: 실제 Positive 중 True의 비율
-      $$
-      \frac{TP}{FN+TP}
-      $$
+- 정확률: 예측 Positive 중 True의 비율
+  $$
+  \frac{TP}{FP+TP}
+  $$
   
-    - F-Score
-      $$
-      \frac{TP}{\frac{1}{2}(FP+FN)+TP}
-      $$
+- 
 
-    - F-Score를 사용하는 이유: 일반적인 정확도 계산과 달리 각 클래스의 불균형이나 FP, FN 등이 고려됨
+- 재현율: 실제 Positive 중 True의 비율
+  $$
+  \frac{TP}{FN+TP}
+  $$
+  
+- F-Score
+  $$
+  \frac{TP}{\frac{1}{2}(FP+FN)+TP}
+  $$
+
+- F-Score를 사용하는 이유: 일반적인 정확도 계산과 달리 각 클래스의 불균형이나 FP, FN 등이 고려됨
